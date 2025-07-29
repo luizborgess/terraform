@@ -12,22 +12,30 @@ jobs:
     runs-on: ubuntu-latest
     environment: Prod
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout repository
+        uses: actions/checkout@v4
 
-      - uses: aws-actions/configure-aws-credentials@v4
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v4
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: us-east-1
 
-      - uses: opentofu/setup-opentofu@v1
+      - name: Setup OpenTofu
+        uses: opentofu/setup-opentofu@v1
         with:
-          tofu_version: 1.6.0
+          tofu_version: 1.9.1
 
-      - uses: actions/download-artifact@v4
-        with:
-          name: tfplan-artifact
+      - name: OpenTofu Init
+        run: tofu init
 
-      - env:
+      - name: OpenTofu Plan
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+        run: tofu plan -out=tfplan
+
+      - name: OpenTofu Apply
+        env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
         run: tofu apply -auto-approve tfplan
