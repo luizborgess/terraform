@@ -10,7 +10,10 @@ terraform {
       version = "~> 5"
     }
   }
-  backend "local" {
+  backend "s3" {
+    bucket = "hlspace-terraform"
+    key    = "terraform.tfstate"
+    region = "us-east-1"
   }
 }
 
@@ -20,5 +23,3 @@ provider "aws" {
 }
 provider "cloudflare" {}
 //api_token = var.cloudflare_api_token
-
-    

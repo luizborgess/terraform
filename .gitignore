@@ -1,8 +1,8 @@
 # Terraform directories and files
 .terraform/
 .terraform.lock.hcl
-#*.tfstate
-#*.tfstate.*
+*.tfstate
+*.tfstate.*
 crash.log
 *.tfvars
 *.tfvars.json
