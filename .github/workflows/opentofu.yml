@@ -12,6 +12,7 @@ jobs:
   plan:
     if: github.event_name == 'pull_request'
     runs-on: ubuntu-latest
+    environment: Prod
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -37,6 +38,7 @@ jobs:
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     needs: plan # Ensures plan job runs successfully before apply
+    environment: Prod
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
