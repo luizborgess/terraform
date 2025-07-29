@@ -1,0 +1,35 @@
+# Terraform directories and files
+.terraform/
+.terraform.lock.hcl
+#*.tfstate
+#*.tfstate.*
+crash.log
+*.tfvars
+*.tfvars.json
+terraform.tfvars
+override.tf
+override.tf.json
+*_override.tf
+*_override.tf.json
+.env
+# Lambda build artifacts
+lambda/
+lambda-handler.zip
+bootstrap
+
+# Backup, log, and temp files
+*.backup
+*.log
+*.bak
+
+# IDE-specific
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS-specific
+.DS_Store
+Thumbs.db
+ehthumbs.db
+Desktop.ini
