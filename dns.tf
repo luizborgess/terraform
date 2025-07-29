@@ -17,6 +17,7 @@ resource "cloudflare_dns_record" "www" {
   content = "luizborgess.github.io"
 }
 
+
 resource "cloudflare_dns_record" "github_challenge" {
   zone_id = "c8cb80ec5637bd53aa8cec679db8676c"
   name    = "_github-pages-challenge-luizborgess.hlspace.org"
