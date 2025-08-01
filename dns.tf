@@ -8,6 +8,24 @@ resource "cloudflare_dns_record" "jellyfin" {
   content = "192.168.24.10"
 }
 
+resource "cloudflare_dns_record" "pairdrop" {
+  zone_id = "c8cb80ec5637bd53aa8cec679db8676c"
+  name    = "pairdrop.hlspace.org"
+  type    = "A"
+  ttl     = 1
+  proxied = false
+  content = "192.168.24.10"
+}
+
+
+resource "cloudflare_dns_record" "traefik" {
+  zone_id = "c8cb80ec5637bd53aa8cec679db8676c"
+  name    = "traefik.hlspace.org"
+  type    = "A"
+  ttl     = 1
+  proxied = false
+  content = "192.168.24.10"
+}
 resource "cloudflare_dns_record" "www" {
   zone_id = "c8cb80ec5637bd53aa8cec679db8676c"
   name    = "www.hlspace.org"
