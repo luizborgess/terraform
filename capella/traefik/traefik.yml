@@ -1,0 +1,36 @@
+global:
+  checkNewVersion: true
+api:
+  dashboard: true
+  insecure: true
+log:
+  level: INFO
+  # Uncomment the next line to enable logging to a file
+  # filepath: /var/log/traefik.log
+
+accessLog: {}
+
+providers:
+  docker:
+    network: proxy
+    exposedByDefault: false
+#  file:
+#    filename: /etc/traefik/dynamic-configuration.yml
+
+entryPoints:
+  web:
+    address: ":80"
+  websecure:
+    address: ":443"
+    # Uncomment the next line if you're using Traefik v2
+    # asDefault: true
+certificatesResolvers:
+  letsencrypt:
+    acme:
+      email: luizplayer2016@hotmail.com
+      storage: /certs/acme.json
+      caServer: https://acme-v02.api.letsencrypt.org/directory # production (default)
+      #caServer: https://acme-staging-v02.api.letsencrypt.org/directory # staging
+      dnsChallenge:
+        provider: cloudflare
+        delayBeforeCheck: 10 #Optional to wait x second before checking with the DNS Server

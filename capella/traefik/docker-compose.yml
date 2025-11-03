@@ -1,0 +1,37 @@
+version: "3.8"
+
+services:
+  traefik:
+    image: traefik:v3.5
+    container_name: traefik
+    restart: always
+    environment:
+      - TZ=America/Sao_Paulo
+      - CF_API_EMAIL=${CF_API_EMAIL}
+      - CF_DNS_API_TOKEN=${CF_DNS_API_TOKEN}
+    ports:
+      - 80:80 # HTTP entryPoints
+      - 443:443 # HTTPS entryPoints
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.dashboard.rule=Host(`traefik.hlspace.org`)"
+      - "traefik.http.routers.dashboard.service=api@internal"
+
+      - "traefik.http.routers.dashboard.entrypoints=websecure"
+      - "traefik.http.routers.dashboard.tls=true"
+      - "traefik.http.routers.dashboard.tls.certresolver=letsencrypt"
+      #- "traefik.http.services.dashboard.loadbalancer.server.port=80"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - ./traefik.yml:/etc/traefik/traefik.yml
+      - traefik:/certs
+    networks:
+      - proxy
+
+volumes:
+  traefik:
+    name: traefik
+
+networks:
+  proxy:
+    external: true

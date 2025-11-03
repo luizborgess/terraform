@@ -1,0 +1,40 @@
+version: "3.8"
+
+services:
+  jellyfin:
+    image: jellyfin/jellyfin:10.11.1
+    container_name: jellyfin
+    restart: unless-stopped
+    #network_mode: 'host'
+    networks:
+      - proxy
+    volumes:
+      - jellyfin_config:/config
+      - jellyfin_cache:/cache
+      - /mnt/data/media:/media
+    environment:
+      TZ: America/Sao_Paulo
+    labels:
+      - 'traefik.enable=true'
+      #- 'traefik.http.routers.jellyfin.entryPoints=web'
+      - 'traefik.http.routers.jellyfin.rule=Host(`jellyfin.hlspace.org`)'
+
+      - "traefik.http.routers.jellyfin.entrypoints=websecure"
+      - "traefik.http.routers.jellyfin.tls=true"
+      - "traefik.http.routers.jellyfin.tls.certresolver=letsencrypt"
+
+  backup:
+    image: offen/docker-volume-backup:v2
+    restart: unless-stopped
+    env_file: ./backup.env #Dont forget to create and edit this file
+    volumes:
+      - jellyfin_config:/backup/jellyfin:ro
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+
+networks:
+  proxy:
+    external: true
+
+volumes:
+  jellyfin_config:
+  jellyfin_cache:
