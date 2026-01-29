@@ -12,7 +12,7 @@ override.tf.json
 *_override.tf
 *_override.tf.json
 .env
-*.env
+**.env
 # Lambda build artifacts
 lambda/
 lambda-handler.zip
