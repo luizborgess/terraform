@@ -5,8 +5,8 @@ services:
     image: ainullcode/borg-ui:latest
     container_name: borg-web-ui
     restart: unless-stopped
-    ports:
-      - "8081:8081"
+    networks:
+      - proxy
     volumes:
       - borg_data:/data
       - borg_cache:/home/borg/.cache/borg
@@ -20,7 +20,13 @@ services:
       - TZ=America/Sao_Paulo  # Set your timezone
       - PUID=1000
       - PGID=1000
-
+    labels:
+      - 'traefik.enable=true'
+      #- 'traefik.http.routers.borg.entryPoints=web'
+      - 'traefik.http.routers.borg.rule=Host(`borg.hlspace.org`)'
+      - "traefik.http.routers.borg.entrypoints=websecure"
+      - "traefik.http.routers.borg.tls.certresolver=letsencrypt"
+      - "traefik.http.services.borg.loadbalancer.server.port=8081"
 
 networks:
   proxy:
