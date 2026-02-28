@@ -29,6 +29,27 @@ resource "aws_lambda_function" "finance_advisor" {
   timeout       = 60
 }
 
+# Permissão para logs CloudWatch
+resource "aws_iam_role_policy" "lambda_logging" {
+  name = "lambda_logging"
+  role = aws_iam_role.iam_for_lambda.id
+
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Effect = "Allow"
+        Action = [
+          "logs:CreateLogGroup",
+          "logs:CreateLogStream",
+          "logs:PutLogEvents"
+        ]
+        Resource = "arn:aws:logs:*:*:*"
+      }
+    ]
+  })
+}
+
 resource "aws_scheduler_schedule" "finance_advisor_schedule" {
   name                         = "finance-advisor-schedule"
   group_name                   = "default"
