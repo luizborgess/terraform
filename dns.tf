@@ -17,14 +17,7 @@ resource "cloudflare_dns_record" "pairdrop" {
   content = "192.168.24.10"
 }
 
-resource "cloudflare_dns_record" "workflow" {
-  zone_id = "c8cb80ec5637bd53aa8cec679db8676c"
-  name    = "workflow.hlspace.org"
-  type    = "A"
-  ttl     = 1
-  proxied = false
-  content = "129.148.42.50"
-}
+
 resource "cloudflare_dns_record" "traefik" {
   zone_id = "c8cb80ec5637bd53aa8cec679db8676c"
   name    = "traefik.hlspace.org"
