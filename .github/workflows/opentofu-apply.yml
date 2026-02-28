@@ -1,8 +1,11 @@
 name: OpenTofu Apply
 
 on:
-  pull_request_target:
-    types: [closed]
+  push:
+    branches:
+      - main
+  pull_request:
+    types: [opened, synchronize, reopened]
     branches:
       - main
 
