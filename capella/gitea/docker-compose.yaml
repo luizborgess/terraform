@@ -1,0 +1,45 @@
+version: "3.8"
+
+services:
+  gitea:
+    image: gitea/gitea:1.21
+    container_name: gitea
+    restart: unless-stopped
+    environment:
+      - USER_UID=1000
+      - USER_GID=1000
+      - GITEA__webhook__ALLOWED_HOST_LIST=atlantis,localhost,127.0.0.1
+      - GITEA__server__ROOT_URL=http://gitea:3000/
+    ports:
+      - "3000:3000"
+      - "2222:22"
+    volumes:
+      - gitea_data:/data
+
+  atlantis:
+    image: ghcr.io/runatlantis/atlantis:latest
+    container_name: atlantis
+    restart: unless-stopped
+    depends_on:
+      - gitea
+    ports:
+      - "4141:4141"
+    volumes:
+      - ./atlantis/repos.yaml:/repos.yaml
+      - atlantis_data:/atlantis-data
+    command:
+      - server
+      - --atlantis-url=http://atlantis:4141
+      - --repo-allowlist=*
+      #- --repo-config=/repos.yaml
+      - --gitea-base-url=http://gitea:3000
+      - --gitea-user=atlantis
+      - --gitea-token=15054ca02515b6f6cf4b8fc4d92cda20004b7b20
+      - --gitea-webhook-secret=secret
+      - --gitea-page-size=30
+
+
+
+volumes:
+  gitea_data:
+  atlantis_data:
