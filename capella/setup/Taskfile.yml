@@ -126,6 +126,27 @@ tasks:
           sudo mount -a
         fi
 
+
+  homebrew:install:
+    status:
+      - command -v brew
+    cmds:
+      - sudo dnf group install -y development-tools
+      - sudo dnf install -y procps-ng curl file
+      - /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+      # Setup para Bash
+      - echo 'eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv bash)"' >> /home/luiz/.bashrc
+      - eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv bash)"
+      # Setup para Fish shell
+      - echo 'eval (/home/linuxbrew/.linuxbrew/bin/brew shellenv)' >> ~/.config/fish/config.fish
+
+  homebrew:packages:
+    deps: [homebrew:install]
+    cmds:
+      - brew install --quiet awscli hugo go k9s lazydocker node opencode opentofu postgresql@16 sshpass tealdeer terraform terragrunt
+
+  homebrew:
+    deps: [homebrew:install, homebrew:packages]
   # ----------------------------
   # 🚀 Setup completo
   # ----------------------------
