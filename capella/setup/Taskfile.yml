@@ -1,0 +1,143 @@
+version: '3'
+
+tasks:
+  # ----------------------------
+  # 🐳 Docker
+  # ----------------------------
+  docker:add-repo:
+    desc: Add Docker repository
+    status:
+      - test -f /etc/yum.repos.d/docker-ce.repo
+    cmds:
+      - sudo dnf config-manager addrepo --from-repofile=https://download.docker.com/linux/fedora/docker-ce.repo
+      - sudo sed -i "s/enabled=.*/enabled=0/g" /etc/yum.repos.d/docker-ce.repo
+
+  docker:install:
+    desc: Install Docker packages
+    deps: [docker:add-repo]
+    status:
+      - command -v docker
+    cmds:
+      - >
+        sudo dnf -y install --enablerepo=docker-ce-stable
+        containerd.io
+        docker-buildx-plugin
+        docker-ce
+        docker-ce-cli
+        docker-compose-plugin
+        docker-model-plugin
+        systemctl enable docker.socket
+  
+  docker:group:
+    desc: Add user to Docker group
+    status:
+      - groups $USER | grep docker
+    cmds:
+      - sudo usermod -aG docker $USER
+
+  docker:
+    desc: Full Docker setup
+    deps: [docker:install, docker:group]
+
+  # ----------------------------
+  # 🧑‍💻 VSCode
+  # ----------------------------
+  vscode:add-repo:
+    status:
+      - test -f /etc/yum.repos.d/vscode.repo
+    cmds:
+      - |
+        sudo tee /etc/yum.repos.d/vscode.repo <<'EOF'
+        [code]
+        name=Visual Studio Code
+        baseurl=https://packages.microsoft.com/yumrepos/vscode
+        enabled=1
+        gpgcheck=1
+        gpgkey=https://packages.microsoft.com/keys/microsoft.asc
+        EOF
+      - sudo sed -i "s/enabled=.*/enabled=0/g" /etc/yum.repos.d/vscode.repo
+
+  vscode:install:
+    deps: [vscode:add-repo]
+    status:
+      - command -v code
+    cmds:
+      - sudo dnf -y install --enablerepo=code code
+
+  vscode:
+    deps: [vscode:install]
+
+  # ----------------------------
+  # 📦 Pacotes base Fedora
+  # ----------------------------
+  packages:
+    cmds:
+      - sudo dnf -y install htop fish fastfetch steam ptyxis util-linux
+
+  # ----------------------------
+  # 🌐 DNS Cloudflare
+  # ----------------------------
+  cloudflare-dns:
+    cmds:
+      - |
+        CON_NAME=$(nmcli -t -f NAME,DEVICE connection show --active | head -n 1 | cut -d: -f1)
+
+        [ -z "$CON_NAME" ] && echo "Sem conexão ativa" && exit 1
+
+        sudo nmcli connection modify "$CON_NAME" ipv4.dns "1.1.1.1 1.0.0.1"
+        sudo nmcli connection modify "$CON_NAME" ipv6.dns "2606:4700:4700::1111 2606:4700:4700::1001"
+        sudo nmcli connection modify "$CON_NAME" ipv6.ignore-auto-dns yes
+
+        sudo nmcli connection up "$CON_NAME"
+        resolvectl flush-caches
+
+  # ----------------------------
+  # 🌍 Google Chrome (rpm-ostree)
+  # ----------------------------
+  chrome:
+    cmds:
+      - |
+        sudo tee /etc/yum.repos.d/google-chrome.repo << 'EOF'
+        [google-chrome]
+        name=google-chrome
+        baseurl=https://dl.google.com/linux/chrome/rpm/stable/x86_64
+        enabled=1
+        gpgcheck=1
+        gpgkey=https://dl.google.com/linux/linux_signing_key.pub
+        EOF
+
+      - sudo dnf install google-chrome-stable || true
+      - fc-cache -r -v
+
+  # ----------------------------
+  # 💾 Mount NTFS automático
+  # ----------------------------
+  mount:data:
+    cmds:
+      - |
+        MOUNTPOINT="/mnt/data"
+        FSTAB_LINE="UUID=01DC07A56B39A350 /mnt/data ntfs-3g defaults,uid=1000,gid=1000,dmask=022,fmask=133 0 0"
+
+        sudo mkdir -p "$MOUNTPOINT"
+
+        if ! grep -Fxq "$FSTAB_LINE" /etc/fstab; then
+          echo "$FSTAB_LINE" >> /etc/fstab
+          sudo systemctl daemon-reload
+          sudo mount -a
+        fi
+
+  # ----------------------------
+  # 🚀 Setup completo
+  # ----------------------------
+  base:
+    deps:
+      - packages
+      - vscode
+      - docker
+
+  all:
+    deps:
+      - base
+      - cloudflare-dns
+      - chrome
+      - mount:data
