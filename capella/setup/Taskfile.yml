@@ -75,9 +75,19 @@ tasks:
       - sudo dnf -y install htop fish fastfetch steam ptyxis util-linux
 
   # ----------------------------
+  #  Base Config
+  # ----------------------------
+  base-config:
+    status:
+      - hostname | grep capella
+    cmds:
+      - sudo hostnamectl set-hostname capella
+  # ----------------------------
   # 🌐 DNS Cloudflare
   # ----------------------------
   cloudflare-dns:
+    status:
+      - resolvectl status | grep "1.1.1.1"
     cmds:
       - |
         CON_NAME=$(nmcli -t -f NAME,DEVICE connection show --active | head -n 1 | cut -d: -f1)
@@ -95,6 +105,8 @@ tasks:
   # 🌍 Google Chrome (rpm-ostree)
   # ----------------------------
   chrome:
+    status:
+      - dnf list installed google-chrome-stable
     cmds:
       - |
         sudo tee /etc/yum.repos.d/google-chrome.repo << 'EOF'
@@ -113,6 +125,8 @@ tasks:
   # 💾 Mount NTFS automático
   # ----------------------------
   mount:data:
+    status:
+      - grep -q "UUID=01DC07A56B39A350" /etc/fstab
     cmds:
       - |
         MOUNTPOINT="/mnt/data"
@@ -155,6 +169,7 @@ tasks:
       - packages
       - vscode
       - docker
+      - base-config
 
   all:
     deps:
