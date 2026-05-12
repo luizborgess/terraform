@@ -75,9 +75,9 @@ tasks:
       - sudo dnf -y install htop fish fastfetch steam ptyxis util-linux
 
   # ----------------------------
-  #  Base Config
+  #  Set Hostname
   # ----------------------------
-  base-config:
+  set-hostname:
     status:
       - hostname | grep capella
     cmds:
@@ -169,7 +169,7 @@ tasks:
       - packages
       - vscode
       - docker
-      - base-config
+      - set-hostname
 
   all:
     deps:
