@@ -45,6 +45,7 @@ tasks:
   vscode:add-repo:
     status:
       - test -f /etc/yum.repos.d/vscode.repo
+      - grep -q '^enabled=1$' /etc/yum.repos.d/vscode.repo
     cmds:
       - |
         sudo tee /etc/yum.repos.d/vscode.repo <<'EOF'
@@ -55,14 +56,14 @@ tasks:
         gpgcheck=1
         gpgkey=https://packages.microsoft.com/keys/microsoft.asc
         EOF
-      - sudo sed -i "s/enabled=.*/enabled=0/g" /etc/yum.repos.d/vscode.repo
 
   vscode:install:
     deps: [vscode:add-repo]
     status:
       - command -v code
     cmds:
-      - sudo dnf -y install --enablerepo=code code
+      - sudo dnf -y install --refresh --enablerepo=code code
+      - sudo dnf config-manager setopt code.enabled=1
 
   vscode:
     deps: [vscode:install]
